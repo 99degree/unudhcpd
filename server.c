@@ -164,8 +164,6 @@ ERROR:
 }
 
 int dhcp_server_start(dhcp_config *config){
-	struct sockaddr_in server_addr;
-
 	printf("Trying to start server with parameters:\n");
 	printf("Server IP addr: %s:%d, client IP addr: %s, interface: %s\n", config->server_ip, config->server_port,
 		config->client_ip, config->iface);
