@@ -1,3 +1,5 @@
+// Copyright 2021 Clayton Craft <clayton@craftyguy.net>
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include <arpa/inet.h>
 #include <errno.h>
 #include <net/if_arp.h>

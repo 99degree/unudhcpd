@@ -1,3 +1,5 @@
+// Copyright 2021 Clayton Craft <clayton@craftyguy.net>
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
