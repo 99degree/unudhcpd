@@ -189,11 +189,14 @@ int dhcp_server_start(dhcp_config *config){
 		if (request.op != BOOTREQUEST)
 			continue;
 
-
 		int idx = 4;
 		int len;
 
-		while (request.options[idx] != 0xFF && idx != 312) {
+		// 312 is the minimum size for the option field:
+		// https://datatracker.ietf.org/doc/html/rfc2131#page-10
+		// It seems unlikely that a request would come in where what we
+		// need is not included in 312 octets
+		while (request.options[idx] != 0xFF && idx <= 312) {
 			if (request.options[idx] == DHCP_MESSAGE_TYPE) {
 				len = (int)request.options[idx+1];
 				if (request.options[idx+2] == DHCP_DISCOVER) {
