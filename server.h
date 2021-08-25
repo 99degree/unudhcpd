@@ -1,7 +1,6 @@
 // Copyright 2021 Clayton Craft <clayton@craftyguy.net>
 // SPDX-License-Identifier: GPL-3.0-or-later
-#ifndef SERVER_H
-#define SERVER_H
+#pragma once
 
 #include <stdint.h>
 #include <netinet/in.h>
@@ -52,5 +51,3 @@ typedef struct dhcp_config {
 } dhcp_config;
 
 int dhcp_server_start(dhcp_config *config);
-
-#endif // SERVER_H
