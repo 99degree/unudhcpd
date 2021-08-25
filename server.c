@@ -152,8 +152,9 @@ int dhcp_server_init(dhcp_config *config) {
 	config->server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	config->server_addr.sin_port = htons(config->server_port);
 
+	printf("Trying to bind to interface: %s\n", config->iface);
 	if (setsockopt(config->server_sock, SOL_SOCKET, SO_BINDTODEVICE, config->iface, strlen(config->iface)) != 0) {
-		perror("Unable to bind to interface '%s'");
+		perror("Unable to bind to interface");
 		goto ERROR;
 	}
 
@@ -172,11 +173,10 @@ ERROR:
 }
 
 int dhcp_server_start(dhcp_config *config){
-	printf("Trying to start server with parameters:\n");
+	printf("Trying to start server with parameters: ");
 	printf("Server IP addr: %s:%d, client IP addr: %s, interface: %s\n", config->server_ip, config->server_port,
 		config->client_ip, config->iface);
 	if (dhcp_server_init(config) != 0) {
-		perror("Unable to initialize DHCP server");
 		return 1;
 	}
 	printf("Server started!\n");
