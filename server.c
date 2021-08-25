@@ -15,7 +15,7 @@
 
 char *mac_to_str(uint8_t *mac) {
 	static char str[20];
-	sprintf(str, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	snprintf(str, 20, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	return str;
 }
 
