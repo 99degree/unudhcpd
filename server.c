@@ -52,38 +52,39 @@ int dhcp_create_response(dhcp_config *config, dhcp_header *request, dhcp_header 
 
 	memset(&response->options, 0, sizeof(response->options));
 
+	dhcp_response_options options = {0};
+
 	// DHCP magic cookie
 	uint8_t magic_cookie[4] = {0x63, 0x82, 0x53, 0x63};
-	memcpy(&response->options, &magic_cookie, sizeof(magic_cookie));
-	int i = 4;
+	memcpy(&options.magic, &magic_cookie, 4);
 
 	// DHCP message type
-	i += sprintf((char*)&response->options[i], "%c", DHCP_MESSAGE_TYPE);
-	i += sprintf((char*)&response->options[i], "%c", 1);
-	i += sprintf((char*)&response->options[i], "%c", type);
+	options.msg_type_option = DHCP_MESSAGE_TYPE;
+	options.msg_type_len = 1;
+	options.msg_type_val = type;
 
 	// server ID
 	struct sockaddr_in server_addr;
 	if (inet_aton(config->server_ip, &server_addr.sin_addr) == 0) {
 		return 1;
 	}
-	i += sprintf((char*)&response->options[i], "%c", SERVER_IDENTIFIER);
-	i += sprintf((char*)&response->options[i], "%c", 4);
-	memcpy(&response->options[i], &server_addr.sin_addr, sizeof(server_addr.sin_addr));
-	i += sizeof(server_addr.sin_addr);
+	options.server_id_option = SERVER_IDENTIFIER;
+	options.server_id_len = 4;
+	memcpy(&options.server_id_val, &server_addr.sin_addr, 4);
 
 	// subnet mask
 	struct sockaddr_in subnet_addr;
 	if (inet_aton("255.255.255.0", &subnet_addr.sin_addr) == 0) {
 		return 1;
 	}
-	i += sprintf((char*)&response->options[i], "%c", DHCP_OPTION_SUBNET);
-	i += sprintf((char*)&response->options[i], "%c", 4);
-	memcpy(&response->options[i], &subnet_addr.sin_addr, sizeof(subnet_addr.sin_addr));
-	i += sizeof(subnet_addr.sin_addr);
+	options.subnet_option = DHCP_OPTION_SUBNET;
+	options.subnet_len = 4;
+	memcpy(&options.subnet_val, &subnet_addr.sin_addr, 4);
 
-	// end option
-	response->options[i] = 0xff;
+	// end
+	options.end_option = 0xff;
+
+	memcpy(&response->options, &options, sizeof(options));
 
 	struct sockaddr_in client_addr;
 	if (inet_aton(config->client_ip, &client_addr.sin_addr) == 0) {

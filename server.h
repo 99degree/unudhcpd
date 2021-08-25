@@ -52,4 +52,24 @@ typedef struct dhcp_config {
         struct sockaddr_in server_addr;
 } dhcp_config;
 
+// Only options used for DHCP OFFER/ACK
+typedef struct dhcp_response_options {
+	// DHCP magic cookie
+	uint8_t magic[4];
+        // DHCP message type
+        uint8_t msg_type_option;
+        uint8_t msg_type_len;
+        uint8_t msg_type_val;
+        // Server ID
+        uint8_t server_id_option;
+        uint8_t server_id_len;
+        uint8_t server_id_val[4];
+        // Subnet mask
+        uint8_t subnet_option;
+        uint8_t subnet_len;
+        uint8_t subnet_val[4];
+        // End
+        uint8_t end_option;
+} dhcp_response_options;
+
 int dhcp_server_start(dhcp_config *config);
