@@ -202,10 +202,12 @@ int dhcp_server_start(dhcp_config *config){
 				if (request.options[idx+2] == DHCP_DISCOVER) {
 					printf("Received DHCP DISCOVER from client: %s\n", mac_to_str(request.chaddr));
 					dhcp_handle_discover(config, &request, &response, &client_addr);
+					break;
 				}
 				if (request.options[idx+2] == DHCP_REQUEST) {
 					printf("Received DHCP REQUEST from client: %s\n", mac_to_str(request.chaddr));
 					dhcp_handle_request(config, &request, &response, &client_addr);
+					break;
 				}
 			} else {
 				len = (int)request.options[idx+1];
