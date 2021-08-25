@@ -23,7 +23,7 @@ int add_arp_entry(dhcp_config *config, uint8_t *mac, int mac_len, uint32_t ip) {
 	struct arpreq areq;
 	memset(&areq, 0, sizeof(areq));
 
-	strncpy(areq.arp_dev, config->iface, sizeof(areq.arp_dev));
+	strlcpy(areq.arp_dev, config->iface, sizeof(areq.arp_dev));
 
 	struct sockaddr_in *sock_addr = (struct sockaddr_in *) &areq.arp_pa;
 	sock_addr->sin_family = AF_INET;
