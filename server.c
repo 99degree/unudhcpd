@@ -108,7 +108,9 @@ int dhcp_send_response(dhcp_config *config, dhcp_header *response, struct sockad
 }
 
 int dhcp_handle_discover(dhcp_config *config, dhcp_header *request, dhcp_header *response, struct sockaddr_in *client_addr) {
-	dhcp_create_response(config, request, response, DHCP_OFFER);
+	if (dhcp_create_response(config, request, response, DHCP_OFFER) != 0) {
+		return 1;
+	}
 	if (dhcp_send_response(config, response, client_addr) != 0)
 		return 1;
 
@@ -116,7 +118,9 @@ int dhcp_handle_discover(dhcp_config *config, dhcp_header *request, dhcp_header 
 }
 
 int dhcp_handle_request(dhcp_config *config, dhcp_header *request, dhcp_header *response, struct sockaddr_in *client_addr) {
-	dhcp_create_response(config, request, response, DHCP_ACK);
+	if (dhcp_create_response(config, request, response, DHCP_ACK) != 0) {
+		return 1;
+	}
 	if (dhcp_send_response(config, response, client_addr) != 0)
 		return 1;
 
