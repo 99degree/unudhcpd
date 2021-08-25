@@ -19,7 +19,7 @@ char *mac_to_str(uint8_t *mac) {
 	return str;
 }
 
-void add_arp_entry(dhcp_config *config, uint8_t *mac, int mac_len, uint32_t ip) {
+int add_arp_entry(dhcp_config *config, uint8_t *mac, int mac_len, uint32_t ip) {
 	struct arpreq areq;
 	memset(&areq, 0, sizeof(areq));
 
@@ -35,7 +35,9 @@ void add_arp_entry(dhcp_config *config, uint8_t *mac, int mac_len, uint32_t ip) 
 
 	if (ioctl(config->server_sock, SIOCSARP, (char *)&areq) < 0)  {
 		perror("Unable to add entry to ARP table");
-    };    
+		return 1;
+	}    
+	return 0;
 }
 
 int dhcp_create_response(dhcp_config *config, dhcp_header *request, dhcp_header *response, unsigned char type) {
@@ -97,7 +99,9 @@ int dhcp_send_response(dhcp_config *config, dhcp_header *response, struct sockad
 	int len = sizeof(*response);
 
 	client_addr->sin_addr.s_addr = inet_addr(config->client_ip);
-	add_arp_entry(config, response->chaddr, response->hlen, response->yiaddr);
+	if (add_arp_entry(config, response->chaddr, response->hlen, response->yiaddr) != 0) {
+		return 1;
+	}
 	if ((sendto(config->server_sock, response, len, 0, (struct sockaddr *)client_addr, sizeof(*client_addr))) < 0) {
 		perror("Unable to send DHCP response");
 		return 1;
