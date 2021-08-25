@@ -49,8 +49,12 @@ int main(int argc, char *argv[]) {
 	if (config.iface == NULL)
 		usage();
 	
-	if (dhcp_server_start(&config) != 0)
-		return 1;
+	for (;;) {
+		if (dhcp_server_start(&config) != 0) {
+			printf("Server quit, retrying in 1 second...\n");
+			sleep(1);
+		}
+	}
 	return 0;
 
 }
