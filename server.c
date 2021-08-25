@@ -39,7 +39,6 @@ void add_arp_entry(dhcp_config *config, uint8_t *mac, int mac_len, uint32_t ip) 
 }
 
 int dhcp_create_response(dhcp_config *config, dhcp_header *request, dhcp_header *response, unsigned char type) {
-	memset(response, 0, sizeof(*response));
 	response->op = BOOTREPLY;
 	response->htype = request->htype;
 	response->hlen = request->hlen;
@@ -178,8 +177,8 @@ int dhcp_server_start(dhcp_config *config){
 	printf("Server started!\n");
 
 	for (;;) {
-		dhcp_header request;
-		dhcp_header response;
+		dhcp_header request = {0};
+		dhcp_header response = {0};
 		struct sockaddr_in client_addr;
 		socklen_t addr_len = sizeof(client_addr);
 		memset(&client_addr, 0, addr_len);
