@@ -22,6 +22,8 @@
 // DHCP Option codes
 #define DHCP_OPTION_SUBNET 1
 
+#define DHCP_HEADER_SIZE 236
+
 // From: https://datatracker.ietf.org/doc/html/rfc2131#page-37
 typedef struct dhcp_header {
 	uint8_t op;

@@ -179,8 +179,10 @@ int dhcp_server_start(dhcp_config *config){
 		struct sockaddr_in client_addr;
 		socklen_t addr_len = sizeof(client_addr);
 		memset(&client_addr, 0, addr_len);
+		ssize_t recv_len;
 
-		if (recvfrom(config->server_sock, &request, sizeof(request), 0, (struct sockaddr *)&client_addr, &addr_len) < 0) {
+		recv_len = recvfrom(config->server_sock, &request, sizeof(request), 0, (struct sockaddr *)&client_addr, &addr_len);
+		if (recv_len < 0) {
 			perror("Unable to receive from socket");
 			close(config->server_sock);
 			return 1;
@@ -189,14 +191,15 @@ int dhcp_server_start(dhcp_config *config){
 		if (request.op != BOOTREQUEST)
 			continue;
 
+		// Minimum size for a DHCP DISCOVER/REQUEST seems to be:
+		// 243 bytes = DHCP Header (236 bytes) + DHCP magic (4) + type (1) + message (1) + 0xFF
+		if (recv_len < 243)
+			continue;
+		int option_len = recv_len - DHCP_HEADER_SIZE;
 		int idx = 4;
 		int len;
 
-		// 312 is the minimum size for the option field:
-		// https://datatracker.ietf.org/doc/html/rfc2131#page-10
-		// It seems unlikely that a request would come in where what we
-		// need is not included in 312 octets
-		while (request.options[idx] != 0xFF && idx <= 312) {
+		while (request.options[idx] != 0xFF && idx <= option_len) {
 			if (request.options[idx] == DHCP_MESSAGE_TYPE) {
 				len = (int)request.options[idx+1];
 				if (request.options[idx+2] == DHCP_DISCOVER) {
