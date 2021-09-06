@@ -13,7 +13,8 @@
 
 #include "server.h"
 
-char *mac_to_str(uint8_t *mac) {
+// Convert 48-bit ethernet MAC to a pretty string
+char *mac_to_str(uint8_t mac[6]) {
 	static char str[20];
 	snprintf(str, 20, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	return str;
@@ -217,12 +218,16 @@ int dhcp_server_start(dhcp_config *config){
 			if (request.options[idx] == DHCP_MESSAGE_TYPE) {
 				len = (int)request.options[idx+1];
 				if (request.options[idx+2] == DHCP_DISCOVER) {
-					printf("Received DHCP DISCOVER from client: %s\n", mac_to_str(request.chaddr));
+					if (request.hlen == 6)
+						printf("Received DHCP DISCOVER from client: %s\n",
+								mac_to_str(request.chaddr));
 					dhcp_handle_discover(config, &request, &response, &client_addr);
 					break;
 				}
 				if (request.options[idx+2] == DHCP_REQUEST) {
-					printf("Received DHCP REQUEST from client: %s\n", mac_to_str(request.chaddr));
+					if (request.hlen == 6)
+						printf("Received DHCP REQUEST from client: %s\n",
+								mac_to_str(request.chaddr));
 					dhcp_handle_request(config, &request, &response, &client_addr);
 					break;
 				}
