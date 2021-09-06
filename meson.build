@@ -15,3 +15,5 @@ exe = executable(
 	src,
 	install : true
 )
+
+subdir('tests')
