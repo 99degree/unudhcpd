@@ -196,6 +196,12 @@ int dhcp_server_start(dhcp_config *config){
 			return 1;
 		}
 
+		// 1 == ethernet, from RFC 1700, "Hardware Type" table
+		if (request.htype != 1) {
+			printf("Received request for unsupported hardware type: %d\n", request.htype);
+			continue;
+		}
+
 		if (request.op != BOOTREQUEST)
 			continue;
 
