@@ -207,19 +207,22 @@ int dhcp_get_request_type(dhcp_header *request, ssize_t request_len) {
 	// to be accessed, to ensure no overflow.
 	while (request->options[idx] != 0xFF && idx + 3 <= option_len) {
 		if (request->options[idx] == DHCP_MESSAGE_TYPE) {
-			len = (int)request->options[idx+1];
 			if (request->options[idx+2] == DHCP_DISCOVER) {
 				return DHCP_DISCOVER;
-				break;
 			}
 			if (request->options[idx+2] == DHCP_REQUEST) {
 				return DHCP_REQUEST;
-				break;
 			}
-		} else {
 			len = (int)request->options[idx+1];
+			idx += len + 2;
+		} else if (request->options[idx] == 0) {
+			// padding
+			idx++;
+		} else {
+			// some unsupported option type
+			len = (int)request->options[idx+1];
+			idx += len + 2;
 		}
-		idx += len + 2;
 	}
 
 	return -1;
