@@ -56,8 +56,7 @@ int dhcp_create_response(dhcp_config *config, dhcp_header *request, dhcp_header 
 	dhcp_response_options options = {0};
 
 	// DHCP magic cookie
-	uint8_t magic_cookie[4] = {0x63, 0x82, 0x53, 0x63};
-	memcpy(&options.magic, &magic_cookie, 4);
+	options.magic = DHCP_OPTION_MAGIC;
 
 	// DHCP message type
 	options.msg_type_option = DHCP_MESSAGE_TYPE;
@@ -182,6 +181,10 @@ int dhcp_is_invalid_request(dhcp_header *request, ssize_t request_len) {
 	}
 
 	if (request->op != BOOTREQUEST)
+		return 1;
+
+	uint32_t magic = (request->options[0] << 24) + (request->options[1] << 16) + (request->options[2] << 8) + request->options[3];
+	if (magic != DHCP_OPTION_MAGIC)
 		return 1;
 
 	// Minimum size for a DHCP DISCOVER/REQUEST seems to be:

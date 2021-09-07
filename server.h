@@ -24,6 +24,8 @@
 
 #define DHCP_HEADER_SIZE 236
 
+#define DHCP_OPTION_MAGIC 0x63825363
+
 // From: https://datatracker.ietf.org/doc/html/rfc2131#page-37
 typedef struct dhcp_header {
 	uint8_t op;
@@ -55,7 +57,7 @@ typedef struct dhcp_config {
 // Only options used for DHCP OFFER/ACK
 typedef struct dhcp_response_options {
 	// DHCP magic cookie
-	uint8_t magic[4];
+	uint32_t magic;
         // DHCP message type
         uint8_t msg_type_option;
         uint8_t msg_type_len;
