@@ -202,7 +202,10 @@ int dhcp_get_request_type(dhcp_header *request, ssize_t request_len) {
 	int idx = 4;
 	int len;
 
-	while (request->options[idx] != 0xFF && idx <= option_len) {
+	// idx + 3, since this is can access up to 3 bytes beyond the idx value
+	// for the request type. The check must be changed if more bytes need
+	// to be accessed, to ensure no overflow.
+	while (request->options[idx] != 0xFF && idx + 3 <= option_len) {
 		if (request->options[idx] == DHCP_MESSAGE_TYPE) {
 			len = (int)request->options[idx+1];
 			if (request->options[idx+2] == DHCP_DISCOVER) {
