@@ -1,0 +1,23 @@
+---
+image: alpine:edge
+
+.only-default: &only-default
+  only:
+    - master
+    - merge_requests
+    - tags
+
+build::amd64:
+  <<: *only-default
+  before_script:
+    - apk -q add
+        build-base
+        meson
+  script:
+    - meson _build
+    - meson compile -C _build
+    - meson test -C _build --print-errorlogs
+
+  artifacts:
+    paths:
+      - _build/

@@ -56,8 +56,7 @@ int dhcp_create_response(dhcp_config *config, dhcp_header *request, dhcp_header 
 	dhcp_response_options options = {0};
 
 	// DHCP magic cookie
-	uint8_t magic_cookie[4] = {0x63, 0x82, 0x53, 0x63};
-	memcpy(&options.magic, &magic_cookie, 4);
+	options.magic = DHCP_OPTION_MAGIC;
 
 	// DHCP message type
 	options.msg_type_option = DHCP_MESSAGE_TYPE;
@@ -173,6 +172,78 @@ ERROR:
 	return 1;
 }
 
+int dhcp_is_invalid_request(dhcp_header *request, ssize_t request_len) {
+
+	// 1 == ethernet, from RFC 1700, "Hardware Type" table
+	if (request->htype != 1) {
+		printf("Received request for unsupported hardware type: %d\n", request->htype);
+		return 1;
+	}
+
+	if (request->op != BOOTREQUEST)
+		return 1;
+
+	uint32_t magic = (request->options[0] << 24) + (request->options[1] << 16) + (request->options[2] << 8) + request->options[3];
+	if (magic != DHCP_OPTION_MAGIC)
+		return 1;
+
+	// Minimum size for a DHCP DISCOVER/REQUEST seems to be:
+	// 243 bytes = DHCP Header (236 bytes) + DHCP magic (4) + type (1) + message (1) + 0xFF
+	// 576 is max per RFC 2131 pg. 10
+	if (request_len < 243 || request_len > 576)
+		return 1;
+
+	return 0;
+}
+
+int dhcp_get_request_type(dhcp_header *request, ssize_t request_len) {
+
+	int option_len = request_len - DHCP_HEADER_SIZE;
+	int idx = 4;
+	int len;
+
+	while (request->options[idx] != 0xFF && idx <= option_len) {
+		if (request->options[idx] == DHCP_MESSAGE_TYPE) {
+			len = (int)request->options[idx+1];
+			if (request->options[idx+2] == DHCP_DISCOVER) {
+				return DHCP_DISCOVER;
+				break;
+			}
+			if (request->options[idx+2] == DHCP_REQUEST) {
+				return DHCP_REQUEST;
+				break;
+			}
+		} else {
+			len = (int)request->options[idx+1];
+		}
+		idx += len + 2;
+	}
+
+	return -1;
+}
+
+int dhcp_server_handle_receive(dhcp_config *config, dhcp_header *request, ssize_t request_len,
+		dhcp_header *response, struct sockaddr_in *client_addr) {
+
+	if (dhcp_is_invalid_request(request, request_len))
+		return 0;
+
+	switch (dhcp_get_request_type(request, request_len)) {
+	case DHCP_DISCOVER:
+		if (request->hlen == 6)
+			printf("Received DHCP DISCOVER from client: %s\n", mac_to_str(request->chaddr));
+		dhcp_handle_discover(config, request, response, client_addr);
+		break;
+	case DHCP_REQUEST:
+		if (request->hlen == 6)
+			printf("Received DHCP REQUEST from client: %s\n", mac_to_str(request->chaddr));
+		dhcp_handle_request(config, request, response, client_addr);
+		break;
+	}
+
+	return 0;
+}
+
 int dhcp_server_start(dhcp_config *config){
 	printf("Trying to start server with parameters: ");
 	printf("Server IP addr: %s:%d, client IP addr: %s, interface: %s\n", config->server_ip, config->server_port,
@@ -197,44 +268,8 @@ int dhcp_server_start(dhcp_config *config){
 			return 1;
 		}
 
-		// 1 == ethernet, from RFC 1700, "Hardware Type" table
-		if (request.htype != 1) {
-			printf("Received request for unsupported hardware type: %d\n", request.htype);
-			continue;
-		}
-
-		if (request.op != BOOTREQUEST)
-			continue;
-
-		// Minimum size for a DHCP DISCOVER/REQUEST seems to be:
-		// 243 bytes = DHCP Header (236 bytes) + DHCP magic (4) + type (1) + message (1) + 0xFF
-		if (recv_len < 243)
-			continue;
-		int option_len = recv_len - DHCP_HEADER_SIZE;
-		int idx = 4;
-		int len;
-
-		while (request.options[idx] != 0xFF && idx <= option_len) {
-			if (request.options[idx] == DHCP_MESSAGE_TYPE) {
-				len = (int)request.options[idx+1];
-				if (request.options[idx+2] == DHCP_DISCOVER) {
-					if (request.hlen == 6)
-						printf("Received DHCP DISCOVER from client: %s\n",
-								mac_to_str(request.chaddr));
-					dhcp_handle_discover(config, &request, &response, &client_addr);
-					break;
-				}
-				if (request.options[idx+2] == DHCP_REQUEST) {
-					if (request.hlen == 6)
-						printf("Received DHCP REQUEST from client: %s\n",
-								mac_to_str(request.chaddr));
-					dhcp_handle_request(config, &request, &response, &client_addr);
-					break;
-				}
-			} else {
-				len = (int)request.options[idx+1];
-			}
-			idx += len + 2;
+		if (dhcp_server_handle_receive(config, &request, recv_len, &response, &client_addr)) {
+			fprintf(stderr, "failed to handle received request!\n");
 		}
 	}
 	close(config->server_sock);
