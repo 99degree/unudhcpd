@@ -14,7 +14,7 @@ build::amd64:
         build-base
         meson
   script:
-    - meson _build
+    - meson --werror _build
     - meson compile -C _build
     - meson test -C _build --print-errorlogs
 
