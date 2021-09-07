@@ -186,7 +186,8 @@ int dhcp_is_invalid_request(dhcp_header *request, ssize_t request_len) {
 
 	// Minimum size for a DHCP DISCOVER/REQUEST seems to be:
 	// 243 bytes = DHCP Header (236 bytes) + DHCP magic (4) + type (1) + message (1) + 0xFF
-	if (request_len < 243)
+	// 576 is max per RFC 2131 pg. 10
+	if (request_len < 243 || request_len > 576)
 		return 1;
 
 	return 0;
