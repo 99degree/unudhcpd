@@ -14,6 +14,7 @@ void usage() {
 	printf("\t-s  server IP {default: 172.168.1.1}\n");
 	printf("\t-p  server port {default: 67}\n");
 	printf("\t-c  client IP to issue for DHCP requests {default: 172.168.1.2}\n");
+	printf("\t-v  print version and quit\n");
 	exit(1);
 }
 
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]) {
 	config.iface = NULL;
 
 	int c;
-	while ((c = getopt(argc, argv, "i:c:s:p:")) != -1)
+	while ((c = getopt(argc, argv, "i:c:s:p:v")) != -1)
 		switch (c)
 		{
 			case 'i':
@@ -42,6 +43,9 @@ int main(int argc, char *argv[]) {
 				if (!config.server_port)
 					usage();
 				break;
+			case 'v':
+				printf("unudhcpd %s\n", VERSION);
+				return 0;
 			default:
 				usage();
 		}
