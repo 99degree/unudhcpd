@@ -5,6 +5,8 @@ project(
 	default_options : ['warning_level=3'],
 	meson_version : '>=0.53.0',
 )
+add_project_arguments('-DVERSION="@0@"'.format(meson.project_version()), language : ['c'])
+
 src = [
 	'main.c',
 	'server.c',
