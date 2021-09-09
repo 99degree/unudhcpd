@@ -17,6 +17,7 @@ Where:
         -s  server IP {default: 172.168.1.1}
         -p  server port {default: 67}
         -c  client IP to issue for DHCP requests {default: 172.168.1.2}
+        -v  print version and quit
 ```
 
 ## Installation
