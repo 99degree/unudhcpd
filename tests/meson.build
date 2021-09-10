@@ -13,6 +13,10 @@ test_dhcp_get_request_type = executable(
         [meson.source_root() / 'server.c', 'test_dhcp_get_request_type.c'],
 )
 
+get_request_type_options_fuzzer = executable(
+        'get_request_type_options_fuzzer',
+        [meson.source_root() / 'server.c', 'get_request_type_options_fuzzer.c'],
+)
 
 test('Test mac_to_str', test_mac_to_str)
 test('Test dhcp_is_invalid_request', test_dhcp_is_invalid_request)
