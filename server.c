@@ -41,7 +41,7 @@ int add_arp_entry(dhcp_config *config, uint8_t *mac, int mac_len, uint32_t ip) {
 	return 0;
 }
 
-int dhcp_create_response(dhcp_config *config, dhcp_header *request, dhcp_header *response, unsigned char type) {
+int dhcp_create_response(dhcp_config *config, dhcp_message *request, dhcp_message *response, unsigned char type) {
 	response->op = BOOTREPLY;
 	response->htype = request->htype;
 	response->hlen = request->hlen;
@@ -96,7 +96,7 @@ int dhcp_create_response(dhcp_config *config, dhcp_header *request, dhcp_header 
 }
 
 
-int dhcp_send_response(dhcp_config *config, dhcp_header *response, struct sockaddr_in *client_addr) {
+int dhcp_send_response(dhcp_config *config, dhcp_message *response, struct sockaddr_in *client_addr) {
 	int len = sizeof(*response);
 
 	client_addr->sin_addr.s_addr = inet_addr(config->client_ip);
@@ -111,7 +111,7 @@ int dhcp_send_response(dhcp_config *config, dhcp_header *response, struct sockad
 	return 0;
 }
 
-int dhcp_handle_discover(dhcp_config *config, dhcp_header *request, dhcp_header *response, struct sockaddr_in *client_addr) {
+int dhcp_handle_discover(dhcp_config *config, dhcp_message *request, dhcp_message *response, struct sockaddr_in *client_addr) {
 	if (dhcp_create_response(config, request, response, DHCP_OFFER) != 0) {
 		return 1;
 	}
@@ -121,7 +121,7 @@ int dhcp_handle_discover(dhcp_config *config, dhcp_header *request, dhcp_header 
 	return 0;
 }
 
-int dhcp_handle_request(dhcp_config *config, dhcp_header *request, dhcp_header *response, struct sockaddr_in *client_addr) {
+int dhcp_handle_request(dhcp_config *config, dhcp_message *request, dhcp_message *response, struct sockaddr_in *client_addr) {
 	if (dhcp_create_response(config, request, response, DHCP_ACK) != 0) {
 		return 1;
 	}
@@ -172,7 +172,7 @@ ERROR:
 	return 1;
 }
 
-int dhcp_is_invalid_request(dhcp_header *request, ssize_t request_len) {
+int dhcp_is_invalid_request(dhcp_message *request, ssize_t request_len) {
 
 	// 1 == ethernet, from RFC 1700, "Hardware Type" table
 	if (request->htype != 1) {
@@ -187,16 +187,13 @@ int dhcp_is_invalid_request(dhcp_header *request, ssize_t request_len) {
 	if (magic != DHCP_OPTION_MAGIC)
 		return 1;
 
-	// Minimum size for a DHCP DISCOVER/REQUEST seems to be:
-	// 243 bytes = DHCP Header (236 bytes) + DHCP magic (4) + type (1) + message (1) + 0xFF
-	// 576 is max per RFC 2131 pg. 10
-	if (request_len < 243 || request_len > 576)
+	if (request_len < DHCP_MESSAGE_SIZE_MIN || request_len > DHCP_MESSAGE_SIZE_MAX)
 		return 1;
 
 	return 0;
 }
 
-int dhcp_get_request_type(dhcp_header *request, ssize_t request_len) {
+int dhcp_get_request_type(dhcp_message *request, ssize_t request_len) {
 
 	int option_len = request_len - DHCP_HEADER_SIZE;
 	int idx = 4;
@@ -228,8 +225,8 @@ int dhcp_get_request_type(dhcp_header *request, ssize_t request_len) {
 	return -1;
 }
 
-int dhcp_server_handle_receive(dhcp_config *config, dhcp_header *request, ssize_t request_len,
-		dhcp_header *response, struct sockaddr_in *client_addr) {
+int dhcp_server_handle_receive(dhcp_config *config, dhcp_message *request, ssize_t request_len,
+		dhcp_message *response, struct sockaddr_in *client_addr) {
 
 	if (dhcp_is_invalid_request(request, request_len))
 		return 0;
@@ -260,8 +257,8 @@ int dhcp_server_start(dhcp_config *config){
 	printf("Server started!\n");
 
 	for (;;) {
-		dhcp_header request = {0};
-		dhcp_header response = {0};
+		dhcp_message request = {0};
+		dhcp_message response = {0};
 		struct sockaddr_in client_addr;
 		socklen_t addr_len = sizeof(client_addr);
 		memset(&client_addr, 0, addr_len);

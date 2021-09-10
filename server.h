@@ -23,11 +23,16 @@
 #define DHCP_OPTION_SUBNET 1
 
 #define DHCP_HEADER_SIZE 236
+// Minimum size for a DHCP DISCOVER/REQUEST message seems to be:
+// 244 bytes = DHCP Header (236 bytes) + DHCP magic (4) + type (1) + length (1) + message (1) + 0xFF
+#define DHCP_MESSAGE_SIZE_MIN 244
+// 576 is max per RFC 2131 pg. 10, for un-extended message
+#define DHCP_MESSAGE_SIZE_MAX  576
 
 #define DHCP_OPTION_MAGIC 0x63825363
 
 // From: https://datatracker.ietf.org/doc/html/rfc2131#page-37
-typedef struct dhcp_header {
+typedef struct dhcp_message {
 	uint8_t op;
 	uint8_t htype;
 	uint8_t hlen;
@@ -42,8 +47,9 @@ typedef struct dhcp_header {
 	uint8_t chaddr[16];
 	uint32_t sname[16];
 	uint32_t file[32];
-	uint8_t options[312];
-} dhcp_header;
+	// 340 = DHCP_MESSAGE_SIZE_MAX - DHCP_HEADER_SIZE
+	uint8_t options[340];
+} dhcp_message;
 
 typedef struct dhcp_config {
         char *iface;

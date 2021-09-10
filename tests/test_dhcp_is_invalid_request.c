@@ -10,7 +10,7 @@ typedef struct {
 	int expected;
 } testcase;
 
-int dhcp_is_invalid_request(dhcp_header *request, ssize_t request_len);
+int dhcp_is_invalid_request(dhcp_message *request, ssize_t request_len);
 
 int main(void) {
 	int fails = 0;
@@ -40,15 +40,15 @@ int main(void) {
 
 	for (int i=0; i<(int)(sizeof(tests) / sizeof(tests[0])); i++) {
 		testcase test = tests[i];
-		dhcp_header h = {0};
-		h.op = test.in_op;
-		h.htype = test.in_htype;
-		h.options[0] = test.in_option_magic >> 24;
-		h.options[1] = (0xFF0000 & test.in_option_magic) >> 16;
-		h.options[2] = (0x00FF00 & test.in_option_magic) >> 8;
-		h.options[3] = 0x0000FF & test.in_option_magic;
+		dhcp_message m = {0};
+		m.op = test.in_op;
+		m.htype = test.in_htype;
+		m.options[0] = test.in_option_magic >> 24;
+		m.options[1] = (0xFF0000 & test.in_option_magic) >> 16;
+		m.options[2] = (0x00FF00 & test.in_option_magic) >> 8;
+		m.options[3] = 0x0000FF & test.in_option_magic;
 
-		int out = dhcp_is_invalid_request(&h, test.in_size);
+		int out = dhcp_is_invalid_request(&m, test.in_size);
 		if (test.expected != out) {
 			fprintf(stderr, "dhcp_is_invalid_request (op: %d, hwtype: %d, size: %d) failed: expected %d, got: %d\n",
 					test.in_op, test.in_htype, test.in_size, test.expected, out);
