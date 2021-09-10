@@ -6,12 +6,6 @@
 
 typedef int (*message_getter)(dhcp_message *m);
 
-typedef struct {
-	char *name;
-	message_getter in_message;
-	int expected;
-} testcase;
-
 int dhcp_get_request_type(dhcp_message *request, ssize_t request_len);
 
 // Sets op code, message type, option magic and option message flag
