@@ -29,7 +29,7 @@
 // 576 is max per RFC 2131 pg. 10, for un-extended message
 #define DHCP_MESSAGE_SIZE_MAX  576
 
-#define DHCP_OPTION_MAGIC 0x63825363
+static const uint8_t dhcp_option_magic[4] = {0x63, 0x82, 0x53, 0x63};
 
 // From: https://datatracker.ietf.org/doc/html/rfc2131#page-37
 typedef struct dhcp_message {
@@ -63,7 +63,7 @@ typedef struct dhcp_config {
 // Only options used for DHCP OFFER/ACK
 typedef struct dhcp_response_options {
 	// DHCP magic cookie
-	uint32_t magic;
+	uint8_t magic[4];
         // DHCP message type
         uint8_t msg_type_option;
         uint8_t msg_type_len;

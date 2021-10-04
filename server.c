@@ -56,7 +56,7 @@ int dhcp_create_response(dhcp_config *config, dhcp_message *request, dhcp_messag
 	dhcp_response_options options = {0};
 
 	// DHCP magic cookie
-	options.magic = DHCP_OPTION_MAGIC;
+	memcpy(&options.magic, &dhcp_option_magic, sizeof(options.magic));
 
 	// DHCP message type
 	options.msg_type_option = DHCP_MESSAGE_TYPE;
@@ -183,8 +183,12 @@ int dhcp_is_invalid_request(dhcp_message *request, ssize_t request_len) {
 	if (request->op != BOOTREQUEST)
 		return 1;
 
-	uint32_t magic = (request->options[0] << 24) + (request->options[1] << 16) + (request->options[2] << 8) + request->options[3];
-	if (magic != DHCP_OPTION_MAGIC)
+	uint8_t magic[4] = {
+		request->options[0],
+		request->options[1],
+		request->options[2],
+		request->options[3]};
+	if (memcmp(&magic, &dhcp_option_magic, sizeof(magic)) != 0)
 		return 1;
 
 	if (request_len < DHCP_MESSAGE_SIZE_MIN || request_len > DHCP_MESSAGE_SIZE_MAX)

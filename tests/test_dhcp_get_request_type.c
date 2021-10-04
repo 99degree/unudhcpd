@@ -17,10 +17,7 @@ void set_required_bits(uint8_t *m) {
 	int o = DHCP_HEADER_SIZE;
 	m[0] = BOOTREQUEST;
 	m[1] = 1;  // ethernet
-	m[o] = DHCP_OPTION_MAGIC >> 24;
-	m[o+1] = (0xFF0000 & DHCP_OPTION_MAGIC) >> 16;
-	m[o+2] = (0x00FF00 & DHCP_OPTION_MAGIC) >> 8;
-	m[o+3] = 0x0000FF & DHCP_OPTION_MAGIC;
+	memcpy(&m[o], &dhcp_option_magic, sizeof(dhcp_option_magic));
 }
 
 int get_tiny_request_message(dhcp_message *message) {
