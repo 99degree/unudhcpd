@@ -21,6 +21,7 @@
 
 // DHCP Option codes
 #define DHCP_OPTION_SUBNET 1
+#define DHCP_OPTION_LEASE 51
 
 #define DHCP_HEADER_SIZE 236
 // Minimum size for a DHCP DISCOVER/REQUEST message seems to be:
@@ -76,6 +77,10 @@ typedef struct dhcp_response_options {
         uint8_t subnet_option;
         uint8_t subnet_len;
         uint8_t subnet_val[4];
+	// Lease time
+        uint8_t lease_option;
+        uint8_t lease_len;
+        uint32_t lease_val;
         // End
         uint8_t end_option;
 } dhcp_response_options;
