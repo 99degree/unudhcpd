@@ -81,6 +81,13 @@ int dhcp_create_response(dhcp_config *config, dhcp_message *request, dhcp_messag
 	options.subnet_len = 4;
 	memcpy(&options.subnet_val, &subnet_addr.sin_addr, 4);
 
+	// lease time
+	options.lease_option = DHCP_OPTION_LEASE;
+	options.lease_len = 4;
+	// set arbitrarily to 42 days. making it too high might(?) mess with
+	// some clients(?). server ignores it anyways.
+	options.lease_val = 0x375f00;
+
 	// end
 	options.end_option = 0xff;
 
@@ -94,7 +101,6 @@ int dhcp_create_response(dhcp_config *config, dhcp_message *request, dhcp_messag
 
 	return 0;
 }
-
 
 int dhcp_send_response(dhcp_config *config, dhcp_message *response, struct sockaddr_in *client_addr) {
 	int len = sizeof(*response);
