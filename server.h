@@ -80,7 +80,7 @@ typedef struct dhcp_response_options {
 	// Lease time
         uint8_t lease_option;
         uint8_t lease_len;
-        uint32_t lease_val;
+        uint8_t lease_val[4];
         // End
         uint8_t end_option;
 } dhcp_response_options;

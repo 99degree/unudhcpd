@@ -86,7 +86,8 @@ int dhcp_create_response(dhcp_config *config, dhcp_message *request, dhcp_messag
 	options.lease_len = 4;
 	// set arbitrarily to 42 days. making it too high might(?) mess with
 	// some clients(?). server ignores it anyways.
-	options.lease_val = 0x375f00;
+	uint8_t lease_time[4] = {0x00, 0x37, 0x5f, 0x00};
+	memcpy(&options.lease_val, &lease_time, 4);
 
 	// end
 	options.end_option = 0xff;
