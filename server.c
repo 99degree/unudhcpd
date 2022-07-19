@@ -98,6 +98,15 @@ int dhcp_create_response(dhcp_config *config, dhcp_message *request, dhcp_messag
 	options.router_len = 4;
 	memcpy(&options.router_val, &router_addr.sin_addr, 4);
 
+	// DNS
+	struct sockaddr_in dns_addr;
+	if (inet_aton(config->server_ip, &dns_addr.sin_addr) == 0) {
+		return 1;
+	}
+	options.dns_option = DHCP_OPTION_DNS;
+	options.dns_len = 4;
+	memcpy(&options.dns_val, &dns_addr.sin_addr, 4);
+
 	// end
 	options.end_option = 0xff;
 
