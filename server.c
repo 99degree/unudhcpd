@@ -89,6 +89,15 @@ int dhcp_create_response(dhcp_config *config, dhcp_message *request, dhcp_messag
 	uint8_t lease_time[4] = {0x00, 0x37, 0x5f, 0x00};
 	memcpy(&options.lease_val, &lease_time, 4);
 
+	// router
+	struct sockaddr_in router_addr;
+	if (inet_aton(config->server_ip, &router_addr.sin_addr) == 0) {
+		return 1;
+	}
+	options.router_option = DHCP_OPTION_ROUTER;
+	options.router_len = 4;
+	memcpy(&options.router_val, &router_addr.sin_addr, 4);
+
 	// end
 	options.end_option = 0xff;
 

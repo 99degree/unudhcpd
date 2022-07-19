@@ -21,6 +21,7 @@
 
 // DHCP Option codes
 #define DHCP_OPTION_SUBNET 1
+#define DHCP_OPTION_ROUTER 3
 #define DHCP_OPTION_LEASE 51
 
 #define DHCP_HEADER_SIZE 236
@@ -81,6 +82,10 @@ typedef struct dhcp_response_options {
         uint8_t lease_option;
         uint8_t lease_len;
         uint8_t lease_val[4];
+	// Router
+        uint8_t router_option;
+        uint8_t router_len;
+        uint8_t router_val[4];
         // End
         uint8_t end_option;
 } dhcp_response_options;
