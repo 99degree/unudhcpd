@@ -11,17 +11,17 @@ void usage() {
 	printf("\tunudhcpd -i <interface> [-s <server IP>] [-p <server port] [-c <client IP>]\n");
 	printf("Where:\n");
 	printf("\t-i  network interface to bind to\n");
-	printf("\t-s  server IP {default: 172.168.1.1}\n");
+	printf("\t-s  server IP {default: 172.16.1.1}\n");
 	printf("\t-p  server port {default: 67}\n");
-	printf("\t-c  client IP to issue for DHCP requests {default: 172.168.1.2}\n");
+	printf("\t-c  client IP to issue for DHCP requests {default: 172.16.1.2}\n");
 	printf("\t-v  print version and quit\n");
 	exit(1);
 }
 
 int main(int argc, char *argv[]) {
 	dhcp_config config;
-	config.server_ip = "172.168.1.1";
-	config.client_ip = "172.168.1.2";
+	config.server_ip = "172.16.1.1";
+	config.client_ip = "172.16.1.2";
 	config.server_port = 67;
 	config.iface = NULL;
 

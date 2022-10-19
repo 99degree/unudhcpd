@@ -14,9 +14,9 @@ Usage:
         unudhcpd -i <interface> [-s <server IP>] [-p <server port] [-c <client IP>]
 Where:
         -i  network interface to bind to
-        -s  server IP {default: 172.168.1.1}
+        -s  server IP {default: 172.16.1.1}
         -p  server port {default: 67}
-        -c  client IP to issue for DHCP requests {default: 172.168.1.2}
+        -c  client IP to issue for DHCP requests {default: 172.16.1.2}
         -v  print version and quit
 ```
 
