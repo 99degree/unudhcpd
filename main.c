@@ -6,7 +6,7 @@
 
 #include "server.h"
 
-void usage() {
+void usage(void) {
 	printf("Usage:\n");
 	printf("\tunudhcpd -i <interface> [-s <server IP>] [-p <server port] [-c <client IP>]\n");
 	printf("Where:\n");
