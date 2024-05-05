@@ -15,6 +15,7 @@ src = [
 exe = executable(
 	'unudhcpd',
 	src,
+	link_args: ['-static','-static-libgcc'],
 	install : true
 )
 
