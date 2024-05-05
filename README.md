@@ -32,3 +32,14 @@ $ meson compile -C _build
 $ sudo meson install -C _build
 ...
 ```
+
+## cross platform arm64 build
+```
+$ meson setup --cross-file cross.txt _build
+...
+$ meson compile -C _build
+...
+$ sudo meson install -C _build
+...
+```
+
