@@ -143,14 +143,21 @@ int dhcp_server_init(dhcp_config *config) {
 
 	if ((proto = getprotobyname("udp")) == 0) {
 		perror("getprotobyname failed");
-		goto ERROR;
+		goto fallback;
 	}
 
 	if ((config->server_sock = socket(AF_INET, SOCK_DGRAM, proto->p_proto)) < 0) {
 		perror("Unable to open UDP socket");
 		goto ERROR;
 	}
+	goto done;
 
+fallback:
+	if ((config->server_sock = socket(AF_INET, SOCK_DGRAM, 17)) < 0) {
+                perror("Unable to open UDP socket");
+                goto ERROR;
+        }
+done:
 	int so_reuseaddr = 1;
 	setsockopt(config->server_sock, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
 
